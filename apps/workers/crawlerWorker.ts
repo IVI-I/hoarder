@@ -271,6 +271,15 @@ async function crawlPage(jobId: string, url: string) {
       `[Crawler][${jobId}] Successfully navigated to "${url}". Waiting for the page to load ...`,
     );
 
+    // Check for YouTube Cookie Accept Button
+    try {
+      await page.waitForSelector('.body ytd-button-renderer:nth-child(1).style-scope.ytd-consent-bump-v2-lightbox button', { timeout: 5000 });
+      await page.click('.body ytd-button-renderer:nth-child(1).style-scope.ytd-consent-bump-v2-lightbox button');
+      logger.info(`[Crawler][${jobId}] Clicked on the Reject all button.`);
+    } catch (error) {
+      logger.warn(`[Crawler][${jobId}] Cookie consent button not found: ${error.message}`);
+    }
+    
     // Wait until there's at most two connections for 2 seconds
     // Attempt to wait only for 5 seconds
     await Promise.race([
